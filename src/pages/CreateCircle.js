@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const CreateCircle = () => {
     const [circleName, setCircleName] = useState('');
 
-    const handleCreateCircle = () => {
-        // 处理创建兴趣圈逻辑
+    const handleCreateCircle = async () => {
+        // Call backend to create circle
     };
 
     return (

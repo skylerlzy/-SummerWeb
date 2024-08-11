@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = () => {
-        // 处理登录逻辑
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, {
+                username,
+                password,
+            });
+            localStorage.setItem('token', response.data.token);
+            // Redirect to home or another page
+        } catch (error) {
+            console.error('Login failed', error);
+        }
     };
 
     return (
