@@ -1,24 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Post from '../components/Post';
+import axios from 'axios';
 
 const Circle = () => {
-    const { id } = useParams();
     const [posts, setPosts] = useState([]);
     const [newPostContent, setNewPostContent] = useState('');
     const [newPostImage, setNewPostImage] = useState(null);
 
     useEffect(() => {
-        // Fetch posts for the circle
-    }, [id]);
+        const fetchPosts = async () => {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/posts`);
+            setPosts(response.data);
+        };
 
-    const handlePostSubmit = () => {
-        // 处理发帖逻辑
+        fetchPosts();
+    }, []);
+
+    const handlePostSubmit = async () => {
+        const formData = new FormData();
+        formData.append('content', newPostContent);
+        if (newPostImage) {
+            formData.append('image', newPostImage);
+        }
+
+        await axios.post(`${process.env.REACT_APP_API_URL}/posts`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            },
+        });
+
+        setNewPostContent('');
+        setNewPostImage(null);
+        // Refresh posts
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/posts`);
+        setPosts(response.data);
     };
 
     return (
         <div>
-            <h1>兴趣圈 {id}</h1>
+            <h1>兴趣圈</h1>
             <textarea
                 placeholder="写下你的帖子..."
                 value={newPostContent}
@@ -30,7 +50,12 @@ const Circle = () => {
             />
             <button onClick={handlePostSubmit}>发帖</button>
             <div>
-                {posts.map(post => <Post key={post.id} post={post} />)}
+                {posts.map((post, index) => (
+                    <div key={index}>
+                        <p>{post.content}</p>
+                        {post.image && <img src={post.image} alt="Post Image" />}
+                    </div>
+                ))}
             </div>
         </div>
     );
