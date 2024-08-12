@@ -13,7 +13,8 @@ const CreateCircle = () => {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            // Handle success (e.g., redirect or show a message)
+            setCircleName('');
+            alert('Circle created successfully');
         } catch (error) {
             console.error('Error creating circle', error);
         }
@@ -21,14 +22,14 @@ const CreateCircle = () => {
 
     return (
         <div>
-            <h1>创建兴趣圈</h1>
+            <h1>Create Circle</h1>
             <input
                 type="text"
-                placeholder="兴趣圈名称"
+                placeholder="Circle Name"
                 value={circleName}
                 onChange={(e) => setCircleName(e.target.value)}
             />
-            <button onClick={handleCreateCircle}>创建</button>
+            <button onClick={handleCreateCircle}>Create</button>
         </div>
     );
 };
