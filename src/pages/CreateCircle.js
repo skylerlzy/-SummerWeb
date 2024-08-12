@@ -5,7 +5,18 @@ const CreateCircle = () => {
     const [circleName, setCircleName] = useState('');
 
     const handleCreateCircle = async () => {
-        // Call backend to create circle
+        try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/circles`, {
+                name: circleName,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            // Handle success (e.g., redirect or show a message)
+        } catch (error) {
+            console.error('Error creating circle', error);
+        }
     };
 
     return (
