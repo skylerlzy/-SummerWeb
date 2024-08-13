@@ -2,6 +2,9 @@
   "name": "my-react-app",
   "version": "1.0.0",
   "main": "index.js",
+  "bin": {
+    "my-react-app": "./server/index.js"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
