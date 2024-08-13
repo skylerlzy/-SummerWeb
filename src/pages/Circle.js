@@ -1,41 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const Circle = () => {
-    const [circles, setCircles] = useState([]);
-    const [selectedCircle, setSelectedCircle] = useState(null);
+    const { circleId } = useParams();  // 获取 URL 参数中的圈子 ID
+    const [circle, setCircle] = useState(null);
     const [posts, setPosts] = useState([]);
     const [newPostContent, setNewPostContent] = useState('');
 
     useEffect(() => {
-        const fetchCircles = async () => {
+        const fetchCircleAndPosts = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/circles`, {
+                // 获取圈子的详细信息
+                const circleResponse = await axios.get(`${process.env.REACT_APP_API_URL}/circles/${circleId}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                setCircles(response.data);
+                setCircle(circleResponse.data);
+
+                // 获取圈子的帖子
+                const postsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/circles/${circleId}/posts`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                setPosts(postsResponse.data);
             } catch (error) {
-                console.error('Error fetching circles', error);
+                console.error('Error fetching circle or posts', error);
             }
         };
-        fetchCircles();
-    }, []);
 
-    const handleCircleSelect = async (circleId) => {
-        setSelectedCircle(circleId);
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/circles/${circleId}/posts`);
-            setPosts(response.data);
-        } catch (error) {
-            console.error('Error fetching posts', error);
+        if (circleId) {
+            fetchCircleAndPosts();
         }
-    };
+    }, [circleId]);
 
     const handlePostSubmit = async () => {
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/circles/${selectedCircle}/posts`, {
+            await axios.post(`${process.env.REACT_APP_API_URL}/circles/${circleId}/posts`, {
                 content: newPostContent,
             }, {
                 headers: {
@@ -44,7 +47,11 @@ const Circle = () => {
             });
             setNewPostContent('');
             // Refresh posts
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/circles/${selectedCircle}/posts`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/circles/${circleId}/posts`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             setPosts(response.data);
         } catch (error) {
             console.error('Error creating post', error);
@@ -53,17 +60,10 @@ const Circle = () => {
 
     return (
         <div>
-            <h1>Interest Circles</h1>
-            <div>
-                {circles.map((circle) => (
-                    <button key={circle.id} onClick={() => handleCircleSelect(circle.id)}>
-                        {circle.name}
-                    </button>
-                ))}
-            </div>
-            {selectedCircle && (
+            <h1>{circle ? circle.name : 'Loading...'}</h1>
+            {circle && (
                 <div>
-                    <h2>Posts in {circles.find(c => c.id === selectedCircle)?.name}</h2>
+                    <h2>Posts in {circle.name}</h2>
                     <textarea
                         placeholder="Write your post..."
                         value={newPostContent}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // 修改导入
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -8,7 +8,7 @@ const Login = () => {
     const [isRegister, setIsRegister] = useState(false);
     const [error, setError] = useState('');
     const [circles, setCircles] = useState([]);
-    const navigate = useNavigate(); // 修改 useHistory 为 useNavigate
+    const navigate = useNavigate();
 
     const handleSubmit = async () => {
         try {
@@ -18,6 +18,9 @@ const Login = () => {
                     password,
                 });
                 alert('Registration successful');
+                setUsername('');
+                setPassword('');
+                setIsRegister(false);
             } else {
                 const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, {
                     username,
@@ -30,11 +33,11 @@ const Login = () => {
                     }
                 });
                 setCircles(circlesResponse.data);
-                navigate('/circle'); // 修改 history.push 为 navigate
+                navigate('/circle');
             }
             setError('');
         } catch (err) {
-            setError('Invalid username or password');
+            setError(isRegister ? 'Registration failed' : 'Invalid username or password');
         }
     };
 
